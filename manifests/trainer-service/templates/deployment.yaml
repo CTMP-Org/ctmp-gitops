@@ -18,6 +18,11 @@ spec:
         app.kubernetes.io/component: api
         azure.workload.identity/use: "true"
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       serviceAccountName: ctmp-workload-sa
       containers:
         - name: {{ .Release.Name }}

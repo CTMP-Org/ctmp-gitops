@@ -60,7 +60,7 @@ jobs:
     uses: CTMP-Org/ctmp-services/.github/workflows/reusable-snyk.yml@dev
     with:
       scan-type: "iac"
-      target: "manifests"
+      target: "manifests/admin-service manifests/analytics-service manifests/auth-service manifests/billing-service manifests/frontend manifests/student-service manifests/trainer-service manifests/workload-identity"
     secrets: inherit
 
   trivy-config-scan:
