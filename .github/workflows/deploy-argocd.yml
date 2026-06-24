@@ -39,7 +39,7 @@ jobs:
             RG_NAME="rg-ctmp3"
             AKS_NAME="ctmp3dev-aks"
           else
-            RG_NAME="rg-ctmp3"
+            RG_NAME="rg-ctmp3prod"
             AKS_NAME="ctmp3-aks"
           fi
           az aks get-credentials --resource-group "$RG_NAME" --name "$AKS_NAME" --overwrite-existing
