@@ -14,4 +14,4 @@ env:
   DB_USER: "ctmp3dev-workload-identity"
 keyvaultName: "ctmp3dev-kv"
 workloadIdentity:
-  clientId: ""
+  clientId: "e0533907-ad4c-480d-b281-ca733000f3a6"
