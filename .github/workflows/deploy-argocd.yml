@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   bootstrap-gitops:
-    name: "Install ArgoCD & App-of-Apps (${{ inputs.environment }})"
+    name: "Bootstrap GitOps & Expose ArgoCD (${{ inputs.environment }})"
     runs-on: self-hosted # Run inside the VNet via the self-hosted runner to access private AKS
     steps:
       - name: Checkout Repository
@@ -44,10 +44,37 @@ jobs:
           fi
           az aks get-credentials --resource-group "$RG_NAME" --name "$AKS_NAME" --overwrite-existing
 
+      - name: Wait for Managed ArgoCD to be Ready
+        run: |
+          echo "Waiting for ArgoCD namespace 'argocd' to be active..."
+          kubectl wait --for=jsonpath='{.status.phase}'=Active namespace/argocd --timeout=300s || {
+            echo "ArgoCD namespace not active yet. Checking namespaces..."
+            kubectl get ns
+          }
+
+          echo "Waiting for ArgoCD Custom Resource Definitions (CRDs) to be registered..."
+          for i in {1..30}; do
+            if kubectl get crd applications.argoproj.io >/dev/null 2>&1; then
+              echo "ArgoCD Application CRD is registered!"
+              break
+            fi
+            echo "Waiting for CRD applications.argoproj.io... ($i/30)"
+            sleep 10
+          done
+
       - name: Deploy App-of-Apps Bootstrap Manifest
         run: |
           echo "Applying ArgoCD App-of-Apps root bootstrap configuration for ${{ inputs.environment }}..."
           kubectl apply -f bootstrap/argocd-app-of-apps-${{ inputs.environment }}.yaml
 
+      - name: Deploy ArgoCD Ingress
+        run: |
+          echo "Exposing ArgoCD UI via Application Gateway Ingress..."
+          kubectl apply -f bootstrap/argocd-ingress.yaml
+
+      - name: Verify Bootstrap Status
+        run: |
           echo "Verifying root application creation..."
           kubectl get application -n argocd
+          echo "Verifying ingress configuration..."
+          kubectl get ingress -n argocd
