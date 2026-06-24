@@ -1,25 +1,10 @@
 # ============================================================================
-# ArgoCD App-of-Apps — Bootstrap Root Application
-# ============================================================================
-# This is the single entry-point Application that ArgoCD uses to discover
-# and manage all child Application manifests in the gitops/apps/ directory.
-#
-# DEPLOYMENT:
-#   kubectl apply -f gitops/bootstrap/argocd-app-of-apps.yaml
-#
-# PREREQUISITES:
-#   1. ArgoCD installed in the 'argocd' namespace on the private AKS cluster
-#   2. Git repository credentials configured in ArgoCD (for private repos)
-#
-# HOW IT WORKS:
-#   ArgoCD reads all YAML files in gitops/apps/ and creates child Application
-#   resources. Each child Application manages one microservice's K8s manifests.
-#   When you push changes to the Git repo, ArgoCD auto-syncs the cluster state.
+# ArgoCD App-of-Apps — Bootstrap Root Application for Prod Environment
 # ============================================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: training-portal-root
+  name: training-portal-root-prod
   namespace: argocd
   labels:
     app.kubernetes.io/part-of: training-portal
@@ -27,7 +12,6 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   annotations:
-    # Notifications (optional — configure ArgoCD Notifications for Slack/Teams)
     notifications.argoproj.io/subscribe.on-sync-succeeded.slack: training-portal-deploys
 spec:
   project: default
@@ -35,7 +19,7 @@ spec:
   source:
     repoURL: https://github.com/CTMP-Org/ctmp-gitops.git
     targetRevision: main
-    path: apps
+    path: apps/prod
 
   destination:
     # In-cluster — ArgoCD runs inside the same AKS cluster
@@ -44,8 +28,8 @@ spec:
 
   syncPolicy:
     automated:
-      prune: true # Remove apps when their YAML is deleted from Git
-      selfHeal: true # Re-sync if someone manually modifies cluster state
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
@@ -57,13 +41,14 @@ spec:
         factor: 2
         maxDuration: 3m
 
+---
 # ============================================================================
-# Namespace for the Training Portal workloads
+# Namespace for the Prod workloads
 # ============================================================================
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: training-portal
+  name: prod
   labels:
     app.kubernetes.io/part-of: training-portal
     istio-injection: disabled

@@ -1,7 +1,16 @@
 name: "Deploy ArgoCD & Bootstrap GitOps"
 
 on:
-  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to bootstrap (dev, prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   id-token: write # Required for Azure OIDC login
@@ -9,7 +18,7 @@ permissions:
 
 jobs:
   bootstrap-gitops:
-    name: "Install ArgoCD & App-of-Apps"
+    name: "Install ArgoCD & App-of-Apps (${{ inputs.environment }})"
     runs-on: self-hosted # Run inside the VNet via the self-hosted runner to access private AKS
     steps:
       - name: Checkout Repository
@@ -25,13 +34,20 @@ jobs:
       - name: Get AKS Credentials
         run: |
           echo "Connecting to private AKS cluster..."
-          az aks get-credentials --resource-group rg-ctmp3 --name ctmp3-aks --overwrite-existing
+          # Since AKS name/resource group incorporates environment prefix (ctmp3dev vs ctmp3), look it up dynamically
+          if [ "${{ inputs.environment }}" = "dev" ]; then
+            RG_NAME="rg-ctmp3dev"
+            AKS_NAME="ctmp3dev-aks"
+          else
+            RG_NAME="rg-ctmp3"
+            AKS_NAME="ctmp3-aks"
+          fi
+          az aks get-credentials --resource-group "$RG_NAME" --name "$AKS_NAME" --overwrite-existing
 
       - name: Deploy App-of-Apps Bootstrap Manifest
         run: |
-          echo "Applying ArgoCD App-of-Apps root bootstrap configuration..."
-          kubectl apply -f bootstrap/argocd-app-of-apps.yaml
+          echo "Applying ArgoCD App-of-Apps root bootstrap configuration for ${{ inputs.environment }}..."
+          kubectl apply -f bootstrap/argocd-app-of-apps-${{ inputs.environment }}.yaml
 
           echo "Verifying root application creation..."
           kubectl get application -n argocd
-

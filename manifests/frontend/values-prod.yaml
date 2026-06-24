@@ -1,0 +1,12 @@
+image:
+  tag: 0.1.0
+ingress:
+  hosts:
+    - host: training.sneakertail.online
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: sneakertail-cert
+      hosts:
+        - training.sneakertail.online

@@ -1,10 +1,7 @@
-# ============================================================================
-# ArgoCD Application: Analytics Service (Platform metrics & activity streams)
-# ============================================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: analytics-service
+  name: dev-trainer-service
   namespace: argocd
   labels:
     app.kubernetes.io/part-of: training-portal
@@ -17,11 +14,15 @@ spec:
   project: default
   source:
     repoURL: https://github.com/CTMP-Org/ctmp-gitops.git
-    targetRevision: HEAD
-    path: manifests/analytics-service/
+    targetRevision: dev
+    path: manifests/trainer-service/
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-dev.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: training-portal
+    namespace: dev
   syncPolicy:
     automated:
       prune: true

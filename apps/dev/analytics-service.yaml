@@ -1,27 +1,28 @@
-# ============================================================================
-# ArgoCD Application: Frontend (Next.js 15)
-# ============================================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: frontend
+  name: dev-analytics-service
   namespace: argocd
   labels:
     app.kubernetes.io/part-of: training-portal
-    app.kubernetes.io/component: frontend
+    app.kubernetes.io/component: api
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "1"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/CTMP-Org/ctmp-gitops.git
-    targetRevision: HEAD
-    path: manifests/frontend/
+    targetRevision: dev
+    path: manifests/analytics-service/
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-dev.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: training-portal
+    namespace: dev
   syncPolicy:
     automated:
       prune: true

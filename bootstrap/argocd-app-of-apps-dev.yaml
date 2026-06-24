@@ -1,0 +1,54 @@
+# ============================================================================
+# ArgoCD App-of-Apps — Bootstrap Root Application for Dev Environment
+# ============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: training-portal-root-dev
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: training-portal
+    app.kubernetes.io/managed-by: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: training-portal-deploys
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/CTMP-Org/ctmp-gitops.git
+    targetRevision: dev
+    path: apps/dev
+
+  destination:
+    # In-cluster — ArgoCD runs inside the same AKS cluster
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+---
+# ============================================================================
+# Namespace for the Dev workloads
+# ============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels:
+    app.kubernetes.io/part-of: training-portal
+    istio-injection: disabled

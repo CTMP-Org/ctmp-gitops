@@ -1,0 +1,17 @@
+image:
+  tag: 0.0.1
+ingress:
+  hosts:
+    - host: api.dev.training.sneakertail.online
+      paths:
+        - path: /api/billing
+          pathType: Prefix
+  tls:
+    - secretName: sneakertail-cert-dev
+      hosts:
+        - api.dev.training.sneakertail.online
+env:
+  DB_USER: "ctmp3dev-workload-identity"
+keyvaultName: "ctmp3dev-kv"
+workloadIdentity:
+  clientId: ""

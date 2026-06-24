@@ -1,13 +1,16 @@
-name: "Validate YAML Manifests"
+name: "Validate & Scan GitOps Manifests"
 
 on:
+  push:
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -50,3 +53,21 @@ jobs:
                   print(f'❌ {sys.argv[1]}: {e}')
                   sys.exit(1)
           " {} \;
+
+  snyk-iac-scan:
+    name: "Snyk IaC Scan"
+    needs: lint
+    uses: CTMP-Org/ctmp-services/.github/workflows/reusable-snyk.yml@dev
+    with:
+      scan-type: "iac"
+      target: "manifests"
+    secrets: inherit
+
+  trivy-config-scan:
+    name: "Trivy Config Scan"
+    needs: lint
+    uses: CTMP-Org/ctmp-services/.github/workflows/reusable-trivy.yml@dev
+    with:
+      scan-type: "config"
+      scan-target: "manifests"
+    secrets: inherit

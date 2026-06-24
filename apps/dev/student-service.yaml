@@ -1,27 +1,28 @@
-# ============================================================================
-# ArgoCD Application: Workload Identity Shared Kubernetes Resources
-# ============================================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: workload-identity
+  name: dev-student-service
   namespace: argocd
   labels:
     app.kubernetes.io/part-of: training-portal
-    app.kubernetes.io/component: identity
+    app.kubernetes.io/component: api
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "1"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/CTMP-Org/ctmp-gitops.git
-    targetRevision: HEAD
-    path: manifests/workload-identity/
+    targetRevision: dev
+    path: manifests/student-service/
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-dev.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: training-portal
+    namespace: dev
   syncPolicy:
     automated:
       prune: true
