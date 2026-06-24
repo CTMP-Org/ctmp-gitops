@@ -36,7 +36,7 @@ jobs:
           echo "Connecting to private AKS cluster..."
           # Since AKS name/resource group incorporates environment prefix (ctmp3dev vs ctmp3), look it up dynamically
           if [ "${{ inputs.environment }}" = "dev" ]; then
-            RG_NAME="rg-ctmp3dev"
+            RG_NAME="rg-ctmp3"
             AKS_NAME="ctmp3dev-aks"
           else
             RG_NAME="rg-ctmp3"
