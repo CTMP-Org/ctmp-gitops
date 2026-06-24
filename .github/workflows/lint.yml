@@ -1,0 +1,52 @@
+name: "Validate YAML Manifests"
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: "Lint & Validate"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate Kubernetes manifests
+        run: |
+          echo "Validating K8s YAML syntax..."
+          find manifests -name "*.yaml" -exec python3 -c "
+          import yaml, sys
+          with open(sys.argv[1]) as f:
+              try:
+                  list(yaml.safe_load_all(f))
+                  print(f'✅ {sys.argv[1]}')
+              except yaml.YAMLError as e:
+                  print(f'❌ {sys.argv[1]}: {e}')
+                  sys.exit(1)
+          " {} \;
+
+      - name: Validate GitOps manifests
+        run: |
+          pip3 install pyyaml
+          find . -name "*.yaml" -not -path '*/.*' -exec python3 -c "
+          import yaml, sys
+          with open(sys.argv[1]) as f:
+              try:
+                  list(yaml.safe_load_all(f))
+                  print(f'✅ {sys.argv[1]}')
+              except yaml.YAMLError as e:
+                  print(f'❌ {sys.argv[1]}: {e}')
+                  sys.exit(1)
+          " {} \;

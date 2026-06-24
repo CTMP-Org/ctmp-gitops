@@ -1,0 +1,36 @@
+# ============================================================================
+# ArgoCD Application: Student Service (EC2 action dispatcher)
+# ============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: student-service
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: training-portal
+    app.kubernetes.io/component: api
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/CTMP-Org/ctmp-gitops.git
+    targetRevision: HEAD
+    path: manifests/student-service/
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: training-portal
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

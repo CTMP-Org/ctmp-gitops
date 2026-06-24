@@ -1,0 +1,4 @@
+serviceAccount:
+  name: ctmp-workload-sa
+workloadIdentity:
+  clientId: "eb005d93-6a81-4eef-8a50-e99cc0613b3d"

@@ -1,0 +1,42 @@
+replicaCount: 1
+image:
+  repository: ctmp3acr.azurecr.io/analytics-service
+  tag: 0.0.19
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+ingress:
+  enabled: true
+  className: azure-application-gateway
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/health-probe-path: /health
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: "sneakertail-cert"
+  hosts:
+    - host: api.training.sneakertail.online
+      paths:
+        - path: /api/analytics
+          pathType: Prefix
+  tls:
+    - secretName: sneakertail-cert
+      hosts:
+        - api.training.sneakertail.online
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+env:
+  USE_ENTRA_DB_AUTH: "true"
+  DB_USER: "ctmp3-workload-identity"
+keyvaultName: "ctmp3-kv"
+tenantId: "3e054dd4-88ff-476b-a5bc-14338ac07215"
+workloadIdentity:
+  clientId: "eb005d93-6a81-4eef-8a50-e99cc0613b3d"
+configMapName: analytics-service-config
+secretName: analytics-service-secrets
