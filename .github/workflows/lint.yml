@@ -85,7 +85,8 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          snyk iac test --severity-threshold=high rendered-manifests/
+          snyk iac test --report --severity-threshold=high rendered-manifests/
+
 
   trivy-config-scan:
     name: "Trivy Config Scan"
