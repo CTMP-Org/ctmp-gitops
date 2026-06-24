@@ -3,6 +3,9 @@ name: "Validate & Scan GitOps Manifests"
 on:
   push:
     branches: [main, dev]
+    paths-ignore:
+      - 'manifests/*/values-dev.yaml'
+      - 'manifests/*/values-prod.yaml'
   pull_request:
     branches: [main, dev]
 
