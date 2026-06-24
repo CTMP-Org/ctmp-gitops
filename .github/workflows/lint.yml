@@ -57,11 +57,35 @@ jobs:
   snyk-iac-scan:
     name: "Snyk IaC Scan"
     needs: lint
-    uses: CTMP-Org/ctmp-services/.github/workflows/reusable-snyk.yml@dev
-    with:
-      scan-type: "iac"
-      target: "manifests/admin-service manifests/analytics-service manifests/auth-service manifests/billing-service manifests/frontend manifests/student-service manifests/trainer-service manifests/workload-identity"
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Render Helm charts
+        run: |
+          mkdir rendered-manifests
+          for chart in manifests/*/; do
+            if [ -f "${chart}Chart.yaml" ]; then
+              chart_name=$(basename "$chart")
+              echo "Rendering Helm chart: $chart_name"
+              helm template "$chart_name" "$chart" --output-dir "rendered-manifests/$chart_name"
+            fi
+          done
+
+      - name: Run Snyk IaC Scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk iac test --severity-threshold=high rendered-manifests/
 
   trivy-config-scan:
     name: "Trivy Config Scan"
