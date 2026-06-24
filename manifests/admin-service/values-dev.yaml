@@ -1,4 +1,5 @@
 image:
+  repository: ctmp3acrdev.azurecr.io/admin-service
   tag: 0.0.10
 ingress:
   hosts:
