@@ -8,7 +8,7 @@ ingress:
         - path: /api/billing
           pathType: Prefix
   tls:
-    - secretName: sneakertail-cert-dev
+    - secretName: sneakertail-cert
       hosts:
         - api.dev.training.sneakertail.online
 env:

@@ -8,6 +8,6 @@ ingress:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: sneakertail-cert-dev
+    - secretName: sneakertail-cert
       hosts:
         - dev.training.sneakertail.online
