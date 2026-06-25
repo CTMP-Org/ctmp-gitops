@@ -1,6 +1,6 @@
 image:
   repository: ctmp3acrdev.azurecr.io/frontend
-  tag: 0.0.15
+  tag: 0.0.17
 ingress:
   hosts:
     - host: dev.training.sneakertail.online
