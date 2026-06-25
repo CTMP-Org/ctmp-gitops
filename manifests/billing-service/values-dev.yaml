@@ -1,6 +1,6 @@
 image:
   repository: ctmp3acrdev.azurecr.io/billing-service
-  tag: 0.0.19
+  tag: 0.0.20
 ingress:
   hosts:
     - host: api.dev.training.sneakertail.online
