@@ -1,6 +1,6 @@
 replicaCount: 1
 image:
-  repository: ctmp3acr.azurecr.io/frontend
+  repository: ctmp3prodacr.azurecr.io/frontend
   tag: 0.0.17
   pullPolicy: IfNotPresent
 service:

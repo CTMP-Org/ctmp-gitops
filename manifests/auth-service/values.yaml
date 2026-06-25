@@ -1,6 +1,6 @@
 replicaCount: 1
 image:
-  repository: ctmp3acr.azurecr.io/auth-service
+  repository: ctmp3prodacr.azurecr.io/auth-service
   tag: 0.0.13
   pullPolicy: IfNotPresent
 service:
@@ -34,7 +34,7 @@ resources:
 env:
   USE_ENTRA_DB_AUTH: "true"
   DB_USER: "ctmp3-workload-identity"
-keyvaultName: "ctmp3-kv"
+keyvaultName: "ctmp3prod-kv"
 tenantId: "3e054dd4-88ff-476b-a5bc-14338ac07215"
 workloadIdentity:
   clientId: "eb005d93-6a81-4eef-8a50-e99cc0613b3d"
