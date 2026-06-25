@@ -1,6 +1,6 @@
 image:
   repository: ctmp3acrdev.azurecr.io/admin-service
-  tag: 0.0.10
+  tag: 0.0.13
 ingress:
   hosts:
     - host: api.dev.training.sneakertail.online
