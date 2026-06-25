@@ -1,0 +1,54 @@
+name: "Debug AKS & Ingress"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  debug:
+    runs-on: self-hosted
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group rg-ctmp3prod --name ctmp3prod-aks --overwrite-existing
+
+      - name: Run Diagnostics
+        run: |
+          echo "=== Ingress Class ==="
+          kubectl get ingressclass -o wide
+          
+          echo "=== Ingress Resources ==="
+          kubectl get ingress -A -o wide
+          
+          echo "=== Describe Ingresses ==="
+          kubectl describe ingress -A
+          
+          echo "=== Kube-System Pods ==="
+          kubectl get pods -n kube-system
+          
+          echo "=== AGIC Pod Logs ==="
+          # Find AGIC pod name
+          AGIC_POD=$(kubectl get pods -n kube-system -l app=ingress-appgw -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+          if [ -n "$AGIC_POD" ]; then
+            echo "Found AGIC Pod: $AGIC_POD"
+            kubectl logs -n kube-system "$AGIC_POD" --tail=200
+          else
+            # Try searching by other common labels
+            AGIC_POD=$(kubectl get pods -n kube-system | grep -i "ingress-appgw" | head -n 1 | awk '{print $1}')
+            if [ -n "$AGIC_POD" ]; then
+              echo "Found AGIC Pod: $AGIC_POD"
+              kubectl logs -n kube-system "$AGIC_POD" --tail=200
+            else
+              echo "AGIC Pod not found."
+            fi
+          fi
